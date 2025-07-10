@@ -1,135 +1,15 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
-  import ROSLIB from "roslib";
-
-  // Props
   let {
-    topicName = "/example_topic",
-    messageType = "std_msgs/String",
-    rosUrl = "ws://localhost:9090",
-    autoConnect = true,
+    topicName = "/topic",
+    messageType = "std_msgs/msg/String",
+    isConnected = false,
+    connectToROS,
+    disconnectFromROS,
+    errorMessage = "",
+    topicValue = null,
+    formatTopicValue,
+    autoConnect = false,
   } = $props();
-
-  // Reactive variables
-  let topicValue: string | null = $state(null);
-  let isConnected: boolean = $state(false);
-  let errorMessage: string = $state("");
-
-  // ROS objects
-  let ros: ROSLIB.Ros;
-  let topic: ROSLIB.Topic;
-  let connectionTimer: number | undefined;
-
-  // Connect to ROS
-  function connectToROS() {
-    try {
-      ros = new ROSLIB.Ros({
-        url: rosUrl,
-      });
-
-      ros.on("connection", () => {
-        console.log("Connected to ROS");
-        isConnected = true;
-        errorMessage = "";
-        subscribeToTopic();
-      });
-
-      ros.on("error", (error: any) => {
-        console.error("ROS connection error:", error);
-        isConnected = false;
-        errorMessage = "Failed to connect to ROS";
-      });
-
-      ros.on("close", () => {
-        console.log("Disconnected from ROS");
-        isConnected = false;
-        errorMessage = "Disconnected from ROS";
-      });
-    } catch (error) {
-      console.error("Error creating ROS connection:", error);
-      errorMessage = "Failed to create ROS connection";
-    }
-  }
-
-  // Subscribe to topic
-  function subscribeToTopic() {
-    if (!ros || !isConnected) return;
-
-    try {
-      topic = new ROSLIB.Topic({
-        ros: ros,
-        name: topicName,
-        messageType: messageType,
-      });
-
-      topic.subscribe((message: any) => {
-        topicValue = message;
-      });
-
-      console.log(`Subscribed to topic: ${topicName}`);
-    } catch (error) {
-      console.error("Error subscribing to topic:", error);
-      errorMessage = "Failed to subscribe to topic";
-    }
-  }
-
-  // Unsubscribe from topic
-  function unsubscribeFromTopic() {
-    if (topic) {
-      topic.unsubscribe();
-      console.log(`Unsubscribed from topic: ${topicName}`);
-    }
-  }
-
-  // Disconnect from ROS
-  function disconnectFromROS() {
-    unsubscribeFromTopic();
-    if (ros) {
-      ros.close();
-    }
-  }
-
-  // Format the topic value for display
-  function formatTopicValue(value: any): string {
-    if (value === null || value === undefined) {
-      return "No data";
-    }
-
-    if (typeof value === "object") {
-      return JSON.stringify(value, null, 2);
-    }
-
-    return String(value);
-  }
-
-  // Lifecycle
-  onMount(() => {
-    if (autoConnect) {
-      connectToROS();
-    }
-  });
-
-  onDestroy(() => {
-    disconnectFromROS();
-    if (connectionTimer) {
-      clearInterval(connectionTimer);
-    }
-  });
-
-  // Reactive statement to reconnect when props change
-  $effect(() => {
-    if (autoConnect && rosUrl) {
-      disconnectFromROS();
-      connectToROS();
-    }
-  });
-
-  $effect(() => {
-    if (topicName) {
-      unsubscribeFromTopic();
-      subscribeToTopic();
-    }
-  });
 </script>
 
 <div class="card shadow-lg border-1 mb-3">
