@@ -119,11 +119,9 @@
 <TopicCard
   {topicName}
   {messageType}
-  {isConnected}
   {errorMessage}
   {topicValue}
   {formatTopicValue}
-  {autoConnect}
 />
 
 <button

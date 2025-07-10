@@ -2,11 +2,9 @@
   let {
     topicName = "/topic",
     messageType = "std_msgs/msg/String",
-    isConnected = false,
     errorMessage = "",
     topicValue = null,
     formatTopicValue,
-    autoConnect = false,
   } = $props();
 </script>
 
@@ -69,46 +67,6 @@
             <small>Waiting for messages on {topicName}</small>
           </div>
         {/if}
-      </div>
-    </div>
-
-    <!-- META DATA -->
-    <div class="row mt-3">
-      <div class="col">
-        <div class="card bg-light">
-          <div class="card-body py-2">
-            <div class="row text-center">
-              <div class="col">
-                <div class="border-end">
-                  <h6 class="text-muted mb-1">Status</h6>
-                  <span
-                    class="badge {isConnected ? 'bg-success' : 'bg-danger'}"
-                  >
-                    {isConnected ? "Active" : "Inactive"}
-                  </span>
-                </div>
-              </div>
-              <div class="col">
-                <div class="border-end">
-                  <h6 class="text-muted mb-1">Messages</h6>
-                  <span class="fw-bold">
-                    {topicValue !== null ? "Received" : "None"}
-                  </span>
-                </div>
-              </div>
-              <div class="col">
-                <div>
-                  <h6 class="text-muted mb-1">Auto Connect</h6>
-                  <span
-                    class="badge {autoConnect ? 'bg-info' : 'bg-secondary'}"
-                  >
-                    {autoConnect ? "Enabled" : "Disabled"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
