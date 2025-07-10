@@ -36,6 +36,7 @@
 
       ros.on("close", () => {
         isConnected = false;
+        topicValue = null;
         errorMessage = "Disconnected from ROS";
       });
     } catch (error) {
