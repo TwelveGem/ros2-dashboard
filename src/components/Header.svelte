@@ -1,6 +1,6 @@
 <script lang="ts">
   // Props
-  let { isConnected = false } = $props();
+  let { isConnected = false, connectToROS, disconnectFromROS } = $props();
 </script>
 
 <div>
@@ -19,17 +19,35 @@
         ROS Topic Monitor
       </h5>
 
-      <div class="bg-info">
-        <div class="d-flex align-items-center">
-          <div class="d-flex align-items-center me-3">
-            <div
-              class="badge rounded-pill {isConnected
-                ? 'bg-success'
-                : 'bg-danger'} me-2"
-            >
-              Test
-            </div>
+      <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center me-3">
+          <div
+            class="badge rounded-pill {isConnected
+              ? 'bg-success'
+              : 'bg-danger'} me-2"
+          >
+            <i class="bi {isConnected ? 'bi-wifi' : 'bi-wifi-off'}"></i>
           </div>
+          <small class="text-light">
+            {isConnected ? "Connected" : "Disconnected"}
+          </small>
+        </div>
+
+        <div class="btn-group">
+          <button
+            class="btn btn-outline-light btn-sm"
+            onclick={connectToROS}
+            disabled={isConnected}
+          >
+            <i class="bi bi-play-fill"></i> Connect
+          </button>
+          <button
+            class="btn btn-outline-light btn-sm"
+            onclick={disconnectFromROS}
+            disabled={!isConnected}
+          >
+            <i class="bi bi-stop-fill"></i> Disconnect
+          </button>
         </div>
       </div>
     </div>

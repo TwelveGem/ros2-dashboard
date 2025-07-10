@@ -3,8 +3,6 @@
     topicName = "/topic",
     messageType = "std_msgs/msg/String",
     isConnected = false,
-    connectToROS,
-    disconnectFromROS,
     errorMessage = "",
     topicValue = null,
     formatTopicValue,
@@ -13,49 +11,6 @@
 </script>
 
 <div class="card shadow-lg border-1 mb-3">
-  <!-- HEADER -->
-  <div
-    class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
-  >
-    <h5 class="mb-0">
-      <i class="bi bi-robot me-2"></i>
-      ROS Topic Monitor
-    </h5>
-
-    <div class="d-flex align-items-center">
-      <div class="d-flex align-items-center me-3">
-        <div
-          class="badge rounded-pill {isConnected
-            ? 'bg-success'
-            : 'bg-danger'} me-2
-        "
-        >
-          <i class="bi {isConnected ? 'bi-wifi' : 'bi-wifi-off'}"></i>
-        </div>
-        <small class="text-light">
-          {isConnected ? "Connected" : "Disconnected"}
-        </small>
-      </div>
-
-      <div class="btn-group">
-        <button
-          class="btn btn-outline-light btn-sm"
-          onclick={connectToROS}
-          disabled={isConnected}
-        >
-          <i class="bi bi-play-fill"></i> Connect</button
-        >
-        <button
-          class="btn btn-outline-light btn-sm"
-          onclick={disconnectFromROS}
-          disabled={!isConnected}
-        >
-          <i class="bi bi-stop-fill"></i> Disconnect
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- BODY -->
   <div class="card-body">
     <!-- ERROR MESSAGE -->
@@ -158,17 +113,3 @@
     </div>
   </div>
 </div>
-
-<button
-  type="button"
-  class="btn btn-primary"
-  onclick={() => {
-    if (topicName === "/example_topic") {
-      topicName = "/topic";
-    } else {
-      topicName = "/example_topic";
-    }
-  }}
->
-  Toggle souce
-</button>

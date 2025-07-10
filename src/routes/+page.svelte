@@ -114,15 +114,27 @@
   });
 </script>
 
-<Header {isConnected} />
+<Header {isConnected} {connectToROS} {disconnectFromROS} />
 <TopicCard
   {topicName}
   {messageType}
   {isConnected}
-  {connectToROS}
-  {disconnectFromROS}
   {errorMessage}
   {topicValue}
   {formatTopicValue}
   {autoConnect}
 />
+
+<button
+  type="button"
+  class="btn btn-primary"
+  onclick={() => {
+    if (topicName === "/example_topic") {
+      topicName = "/topic";
+    } else {
+      topicName = "/example_topic";
+    }
+  }}
+>
+  Toggle souce
+</button>
