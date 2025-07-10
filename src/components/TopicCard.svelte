@@ -11,9 +11,9 @@
   } = $props();
 
   // Reactive variables
-  let topicValue: any = $state(null);
-  let isConnected = $state(false);
-  let errorMessage = $state("");
+  let topicValue: string | null = $state(null);
+  let isConnected: boolean = $state(false);
+  let errorMessage: string = $state("");
 
   // ROS objects
   let ros: ROSLIB.Ros;
@@ -133,6 +133,7 @@
 </script>
 
 <div class="card shadow-lg border-1 mb-3">
+  <!-- HEADER -->
   <div
     class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
   >
@@ -175,7 +176,9 @@
     </div>
   </div>
 
+  <!-- BODY -->
   <div class="card-body">
+    <!-- ERROR MESSAGE -->
     {#if errorMessage}
       <div class="alert alert-danger alert-dismissible fade show">
         <i class="bi bi-exclamation-triangle me-2"></i>
@@ -189,6 +192,7 @@
       </div>
     {/if}
 
+    <!-- TOPIC INFO -->
     <div class="row mb-3">
       <div class="col">
         <div class="card bg-light">
@@ -212,6 +216,7 @@
       </div>
     </div>
 
+    <!-- TOPIC DATA -->
     <div class="card">
       <div class="card-header bg-success text-white">
         <h6 class="mb-0">Topic Data</h6>
@@ -232,6 +237,7 @@
       </div>
     </div>
 
+    <!-- META DATA -->
     <div class="row mt-3">
       <div class="col">
         <div class="card bg-light">
