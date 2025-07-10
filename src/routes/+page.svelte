@@ -3,6 +3,7 @@
   import Header from "../components/Header.svelte";
   import TopicCard from "../components/TopicCard.svelte";
   import { onDestroy, onMount } from "svelte";
+  import Error from "../components/Error.svelte";
 
   let topicName = $state("/topic");
   let messageType = "std_msgs/msg/String";
@@ -87,6 +88,17 @@
     return String(value);
   }
 
+  function smartFormatTopicValue(value: any, messageType: string) {
+    switch (messageType.toLowerCase()) {
+      case "std_msgs/msg/string":
+      case "std_msgs/string": {
+        return value.data;
+      }
+      default:
+        return formatTopicValue(value);
+    }
+  }
+
   onMount(() => {
     if (autoConnect) {
       connectToROS();
@@ -116,13 +128,43 @@
 </script>
 
 <Header {isConnected} {connectToROS} {disconnectFromROS} />
-<TopicCard
-  {topicName}
-  {messageType}
-  {errorMessage}
-  {topicValue}
-  {formatTopicValue}
-/>
+
+{#if errorMessage}
+  <Error {errorMessage} />
+{/if}
+
+<div class="row">
+  <span class="col">
+    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
+  </span>
+  <span class="col">
+    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
+  </span>
+  <span class="col">
+    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
+  </span>
+  <span class="col">
+    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
+  </span>
+  <span class="col">
+    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
+  </span>
+  <span class="col">
+    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
+  </span>
+  <span class="col">
+    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
+  </span>
+  <span class="col">
+    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
+  </span>
+  <span class="col">
+    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
+  </span>
+  <span class="col">
+    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
+  </span>
+</div>
 
 <button
   type="button"
