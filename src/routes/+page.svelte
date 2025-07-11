@@ -76,17 +76,26 @@
     }
   }
 
-  function formatTopicValue(value: any): string {
-    if (value === null || value === undefined) {
-      return "No data";
+  function smartFormatTopicValue(value: any, type: string) {
+    switch (type.toLowerCase()) {
+      case "std_msgs/string":
+      case "std_msgs/msg/string":
+        return value.data;
+      default:
+        return formatTopicValue(value);
     }
 
-    if (typeof value === "object") {
-      return "\n" + JSON.stringify(value, null, 0);
-    }
+    function formatTopicValue(value: any) {
+      if (value === null || value === undefined) {
+        return "No data";
+      }
 
-    return String(value);
-  }
+      if (typeof value === "object") {
+        return "\n" + JSON.stringify(value, null, 0);
+      }
+
+      return String(value);
+    }
 
   function smartFormatTopicValue(value: any, messageType: string) {
     switch (messageType.toLowerCase()) {
