@@ -5,72 +5,83 @@
   import { onDestroy, onMount } from "svelte";
   import Error from "../components/Error.svelte";
 
-  let topicName = $state("/topic");
-  let messageType = "std_msgs/msg/String";
-  let rosUrl = "ws://localhost:9090";
-  let autoConnect = true;
-  let isConnected = $state(false);
-
-  let topicValue: string | null = $state(null);
-  let errorMessage = $state("");
-
   let ros: ROSLIB.Ros;
-  let topic: ROSLIB.Topic;
-  let connectionTimer: number | undefined;
+  let autoConnect = true;
+
+  let isConnected = $state(false);
+  let errorMessage = $state("");
+  let rosUrl = "ws://localhost:9090";
+
+  let topics = $state([
+    { name: "/topic0", type: "std_msgs/msg/String" },
+    { name: "/topic1", type: "std_msgs/msg/String" },
+    { name: "/topic2", type: "std_msgs/msg/String" },
+    { name: "/topic3", type: "std_msgs/msg/String" },
+    { name: "/topic4", type: "std_msgs/msg/String" },
+    { name: "/topic5", type: "std_msgs/msg/String" },
+    { name: "/topic6", type: "std_msgs/msg/String" },
+    { name: "/topic7", type: "std_msgs/msg/String" },
+    { name: "/topic8", type: "std_msgs/msg/String" },
+    { name: "/topic9", type: "std_msgs/msg/String" },
+  ]);
+
+  let topicStates = $state<ROSLIB.Topic[]>([]);
+  let topicValues = $state<any[]>([]);
 
   function connectToROS() {
-    try {
-      ros = new ROSLIB.Ros({
-        url: rosUrl,
-      });
+    ros = new ROSLIB.Ros({
+      url: rosUrl,
+    });
 
+    try {
       ros.on("connection", () => {
         isConnected = true;
         errorMessage = "";
-        subscribeToTopic();
+        subscribeToTopics();
       });
 
-      ros.on("error", (error: any) => {
+      ros.on("error", () => {
         isConnected = false;
-        errorMessage = "Failed to connect to ROS";
+        errorMessage = "Coudldn't connect to ROS";
       });
 
       ros.on("close", () => {
         isConnected = false;
-        topicValue = null;
-        errorMessage = "Disconnected from ROS";
+        errorMessage = "Conection Closed";
       });
     } catch (error) {
       errorMessage = "Failed to create ROS connection";
     }
   }
 
-  function subscribeToTopic() {
+  function subscribeToTopics() {
     if (!ros || !isConnected) return;
 
     try {
-      topic = new ROSLIB.Topic({
-        ros: ros,
-        name: topicName,
-        messageType: messageType,
-      });
+      topicStates = [];
+      topicValues = [];
 
-      topic.subscribe((message: any) => {
-        topicValue = message;
-      });
-    } catch (error) {
-      errorMessage = "Failed to subscribe to topic";
-    }
-  }
+      for (let i = 0; i < topics.length; i++) {
+        let state = topics[i];
 
-  function unsubscribeFromTopic() {
-    if (topic) {
-      topic.unsubscribe();
-    }
+        const topic = new ROSLIB.Topic({
+          ros: ros,
+          name: state.name,
+          messageType: state.type,
+        });
+
+        topicStates.push(topic);
+
+        topic.subscribe((message: any) => {
+          topicValues[i] = message;
+        });
+      }
+    } catch (error) {}
   }
 
   function disconnectFromROS() {
-    unsubscribeFromTopic();
+    isConnected = false;
+
     if (ros) {
       ros.close();
     }
@@ -96,16 +107,30 @@
 
       return String(value);
     }
+  }
 
-  function smartFormatTopicValue(value: any, messageType: string) {
-    switch (messageType.toLowerCase()) {
-      case "std_msgs/msg/string":
-      case "std_msgs/string": {
-        return value.data;
-      }
-      default:
-        return formatTopicValue(value);
+  function unsubscribeTopic(index: number) {
+    if (topicStates[index]) {
+      topicStates[index].unsubscribe();
     }
+  }
+
+  function subscribeToTopic(index: number) {
+    try {
+      let state = topics[index];
+
+      const topic = new ROSLIB.Topic({
+        ros: ros,
+        name: state.name,
+        messageType: state.type,
+      });
+
+      topicStates[index] = topic;
+
+      topic.subscribe((message: any) => {
+        topicValues[index] = message;
+      });
+    } catch (error) {}
   }
 
   onMount(() => {
@@ -116,22 +141,12 @@
 
   onDestroy(() => {
     disconnectFromROS();
-    if (connectionTimer) {
-      clearInterval(connectionTimer);
-    }
   });
 
   $effect(() => {
     if (autoConnect && rosUrl) {
       disconnectFromROS();
       connectToROS();
-    }
-  });
-
-  $effect(() => {
-    if (topicName && messageType) {
-      unsubscribeFromTopic();
-      subscribeToTopic();
     }
   });
 </script>
@@ -143,48 +158,14 @@
 {/if}
 
 <div class="row">
-  <span class="col">
-    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
-  </span>
-  <span class="col">
-    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
-  </span>
-  <span class="col">
-    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
-  </span>
-  <span class="col">
-    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
-  </span>
-  <span class="col">
-    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
-  </span>
-  <span class="col">
-    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
-  </span>
-  <span class="col">
-    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
-  </span>
-  <span class="col">
-    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
-  </span>
-  <span class="col">
-    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
-  </span>
-  <span class="col">
-    <TopicCard {topicName} {messageType} {topicValue} {smartFormatTopicValue} />
-  </span>
+  {#each topics as { name, type }, index}
+    <div id={name} class="col draggable">
+      <TopicCard
+        topicName={name}
+        messageType={type}
+        topicValue={topicValues[index] || null}
+        {smartFormatTopicValue}
+      />
+    </div>
+  {/each}
 </div>
-
-<button
-  type="button"
-  class="btn btn-primary"
-  onclick={() => {
-    if (topicName === "/example_topic") {
-      topicName = "/topic";
-    } else {
-      topicName = "/example_topic";
-    }
-  }}
->
-  Toggle souce
-</button>
