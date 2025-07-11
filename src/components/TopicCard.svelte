@@ -8,7 +8,19 @@
 </script>
 
 <div class="card shadow-lg border-1 mt-3">
-  <div class="card-body">
+  <div
+    class="card-body"
+    role="button"
+    tabindex="0"
+    onclick={() => {
+      alert(topicName);
+    }}
+    onkeydown={(e) => {
+      if (e.key === "Enter") {
+        alert(topicName);
+      }
+    }}
+  >
     <!-- TOPIC INFO -->
     <div class="row mb-3">
       <div class="card-bg-light">
