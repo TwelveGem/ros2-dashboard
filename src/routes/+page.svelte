@@ -8,6 +8,8 @@
   let ros: ROSLIB.Ros;
   let autoConnect = true;
 
+  let columns = $state(0);
+
   let isConnected = $state(false);
   let errorMessage = $state("");
   let rosUrl = "ws://localhost:9090";
@@ -174,17 +176,36 @@
       connectToROS();
     }
   });
+
+  function onColumnsChange(up: boolean) {
+    if (up && columns < 16) {
+      columns++;
+    } else if (columns > 0) {
+      columns--;
+    }
+  }
 </script>
 
-<Header {isConnected} {connectToROS} {disconnectFromROS} />
+<Header
+  {isConnected}
+  {connectToROS}
+  {disconnectFromROS}
+  {columns}
+  {onColumnsChange}
+/>
 
 {#if errorMessage}
   <Error {errorMessage} />
 {/if}
 
-<div class="row">
+<div
+  class="row"
+  style={columns > 0
+    ? `display:grid; grid-template-columns: repeat(${columns}, 1fr);`
+    : ""}
+>
   {#each topics as { name, type }, index}
-    <div id={name} class="col draggable">
+    <div id={name} class="col">
       <TopicCard
         topicName={name}
         messageType={type}
