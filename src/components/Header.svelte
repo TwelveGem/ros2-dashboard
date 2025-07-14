@@ -1,6 +1,12 @@
 <script lang="ts">
   // Props
-  let { isConnected = false, connectToROS, disconnectFromROS } = $props();
+  let {
+    isConnected = false,
+    connectToROS,
+    disconnectFromROS,
+    columns,
+    onColumnsChange,
+  } = $props();
 </script>
 
 <div>
@@ -19,6 +25,32 @@
         ROS Topic Monitor
       </h5>
 
+      <div class="d-flex align-items-center">
+        <h7 class="mx-2 text-white">Columns: </h7>
+        <button
+          class="btn bg-info rounded-pill badge"
+          onclick={() => {
+            onColumnsChange(false);
+          }}
+        >
+          -
+        </button>
+        <h7 class="mx-2 text-white">
+          {#if columns > 0}
+            {columns}
+          {:else}
+            Auto
+          {/if}
+        </h7>
+        <button
+          class="btn bg-info rounded-pill badge"
+          onclick={() => {
+            onColumnsChange(true);
+          }}
+        >
+          +
+        </button>
+      </div>
       <div class="d-flex align-items-center">
         <div class="d-flex align-items-center me-3">
           <div
