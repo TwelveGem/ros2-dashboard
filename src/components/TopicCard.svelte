@@ -1,14 +1,45 @@
 <script lang="ts">
+  import TopicEditForm from "./TopicEditForm.svelte";
+
   let {
     topicName = "/topic",
     messageType = "std_msgs/msg/String",
     topicValue = null,
     smartFormatTopicValue,
+    onTopicUpdate,
   } = $props();
+
+  let showEditForm = $state(false);
+
+  function handleCardClick() {
+    showEditForm = true;
+  }
+
+  function handleSave(newTopicName: string, newMessageType: string) {
+    if (onTopicUpdate) {
+      onTopicUpdate(newTopicName, newMessageType);
+    }
+    showEditForm = false;
+  }
+
+  function handleCancel() {
+    showEditForm = false;
+  }
 </script>
 
 <div class="card shadow-lg border-1 mt-3">
-  <div class="card-body">
+  <div
+    class="card-body"
+    role="button"
+    tabindex="0"
+    onclick={handleCardClick}
+    onkeydown={(e) => {
+      if (e.key === "Enter") {
+        handleCardClick();
+      }
+    }}
+    style="cursor: pointer;"
+  >
     <!-- TOPIC INFO -->
     <div class="row mb-3">
       <div class="card-bg-light">
@@ -41,3 +72,12 @@
     </div>
   </div>
 </div>
+
+<!-- Edit Form Modal -->
+<TopicEditForm
+  {topicName}
+  {messageType}
+  isOpen={showEditForm}
+  onSave={handleSave}
+  onCancel={handleCancel}
+/>

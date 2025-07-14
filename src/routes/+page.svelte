@@ -133,6 +133,31 @@
     } catch (error) {}
   }
 
+  function updateTopic(
+    index: number,
+    newTopicName: string,
+    newMessageType: string
+  ) {
+    // Unsubscribe from the current topic
+    if (topicStates[index]) {
+      topicStates[index].unsubscribe();
+    }
+
+    // Update the topic data
+    topics[index] = {
+      name: newTopicName,
+      type: newMessageType,
+    };
+
+    // Clear the current value
+    topicValues[index] = null;
+
+    // Subscribe to the new topic if connected
+    if (isConnected) {
+      subscribeToTopic(index);
+    }
+  }
+
   onMount(() => {
     if (autoConnect) {
       connectToROS();
@@ -165,6 +190,8 @@
         messageType={type}
         topicValue={topicValues[index] || null}
         {smartFormatTopicValue}
+        onTopicUpdate={(newTopicName: string, newMessageType: string) =>
+          updateTopic(index, newTopicName, newMessageType)}
       />
     </div>
   {/each}
