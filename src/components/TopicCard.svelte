@@ -1,12 +1,15 @@
 <script lang="ts">
   import TopicEditForm from "./TopicEditForm.svelte";
+  import "./TopicCard.css";
 
   let {
     topicName = "/topic",
     messageType = "std_msgs/msg/String",
+    index,
     topicValue = null,
     smartFormatTopicValue,
     onTopicUpdate,
+    deleteTopic,
   } = $props();
 
   let showEditForm = $state(false);
@@ -71,6 +74,15 @@
       </div>
     </div>
   </div>
+
+  <button
+    class="btn bg-danger close text-white"
+    onclick={() => {
+      deleteTopic(index);
+    }}
+  >
+    X
+  </button>
 </div>
 
 <!-- Edit Form Modal -->

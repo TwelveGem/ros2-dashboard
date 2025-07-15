@@ -184,6 +184,14 @@
       columns--;
     }
   }
+
+  function deleteTopic(index: number) {
+    unsubscribeTopic(index);
+
+    topics.splice(index, 1);
+    topicStates.splice(index, 1);
+    topicValues.splice(index, 1);
+  }
 </script>
 
 <Header
@@ -199,7 +207,7 @@
 {/if}
 
 <div
-  class="row"
+  class="row px-3"
   style={columns > 0
     ? `display:grid; grid-template-columns: repeat(${columns}, 1fr);`
     : ""}
@@ -209,10 +217,12 @@
       <TopicCard
         topicName={name}
         messageType={type}
+        {index}
         topicValue={topicValues[index] || null}
         {smartFormatTopicValue}
         onTopicUpdate={(newTopicName: string, newMessageType: string) =>
           updateTopic(index, newTopicName, newMessageType)}
+        {deleteTopic}
       />
     </div>
   {/each}
