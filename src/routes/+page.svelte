@@ -207,7 +207,7 @@
 {/if}
 
 <div
-  class="row"
+  class="row px-3"
   style={columns > 0
     ? `display:grid; grid-template-columns: repeat(${columns}, 1fr);`
     : ""}
