@@ -1,18 +1,14 @@
 <script lang="ts">
   import ROSLIB from "roslib";
+  import { onDestroy, onMount } from "svelte";
   import Header from "../components/Header.svelte";
   import TopicCard from "../components/TopicCard.svelte";
-  import { onDestroy, onMount } from "svelte";
   import Error from "../components/Error.svelte";
 
   let ros: ROSLIB.Ros;
   let autoConnect = true;
-
-  let columns = $state(0);
-
-  let isConnected = $state(false);
-  let errorMessage = $state("");
   let rosUrl = "ws://localhost:9090";
+  let isConnected = $state(false);
 
   let topics = $state([
     { name: "/topic0", type: "std_msgs/msg/String" },
@@ -29,6 +25,9 @@
 
   let topicStates = $state<ROSLIB.Topic[]>([]);
   let topicValues = $state<any[]>([]);
+  let errorMessage = $state("");
+
+  let columns = $state(0);
 
   function connectToROS() {
     ros = new ROSLIB.Ros({
@@ -53,6 +52,14 @@
       });
     } catch (error) {
       errorMessage = "Failed to create ROS connection";
+    }
+  }
+
+  function disconnectFromROS() {
+    isConnected = false;
+
+    if (ros) {
+      ros.close();
     }
   }
 
@@ -81,42 +88,6 @@
     } catch (error) {}
   }
 
-  function disconnectFromROS() {
-    isConnected = false;
-
-    if (ros) {
-      ros.close();
-    }
-  }
-
-  function smartFormatTopicValue(value: any, type: string) {
-    switch (type.toLowerCase()) {
-      case "std_msgs/string":
-      case "std_msgs/msg/string":
-        return value.data;
-      default:
-        return formatTopicValue(value);
-    }
-
-    function formatTopicValue(value: any) {
-      if (value === null || value === undefined) {
-        return "No data";
-      }
-
-      if (typeof value === "object") {
-        return "\n" + JSON.stringify(value, null, 0);
-      }
-
-      return String(value);
-    }
-  }
-
-  function unsubscribeTopic(index: number) {
-    if (topicStates[index]) {
-      topicStates[index].unsubscribe();
-    }
-  }
-
   function subscribeToTopic(index: number) {
     try {
       let state = topics[index];
@@ -133,6 +104,20 @@
         topicValues[index] = message;
       });
     } catch (error) {}
+  }
+
+  function unsubscribeTopic(index: number) {
+    if (topicStates[index]) {
+      topicStates[index].unsubscribe();
+    }
+  }
+
+  function deleteTopic(index: number) {
+    unsubscribeTopic(index);
+
+    topics.splice(index, 1);
+    topicStates.splice(index, 1);
+    topicValues.splice(index, 1);
   }
 
   function updateTopic(
@@ -160,6 +145,36 @@
     }
   }
 
+  function smartFormatTopicValue(value: any, type: string) {
+    switch (type.toLowerCase()) {
+      case "std_msgs/string":
+      case "std_msgs/msg/string":
+        return value.data;
+      default:
+        return formatTopicValue(value);
+    }
+
+    function formatTopicValue(value: any) {
+      if (value === null || value === undefined) {
+        return "No data";
+      }
+
+      if (typeof value === "object") {
+        return "\n" + JSON.stringify(value, null, 0);
+      }
+
+      return String(value);
+    }
+  }
+
+  function onColumnsChange(up: boolean) {
+    if (up && columns < 16) {
+      columns++;
+    } else if (columns > 0) {
+      columns--;
+    }
+  }
+
   onMount(() => {
     if (autoConnect) {
       connectToROS();
@@ -176,22 +191,6 @@
       connectToROS();
     }
   });
-
-  function onColumnsChange(up: boolean) {
-    if (up && columns < 16) {
-      columns++;
-    } else if (columns > 0) {
-      columns--;
-    }
-  }
-
-  function deleteTopic(index: number) {
-    unsubscribeTopic(index);
-
-    topics.splice(index, 1);
-    topicStates.splice(index, 1);
-    topicValues.splice(index, 1);
-  }
 </script>
 
 <Header
