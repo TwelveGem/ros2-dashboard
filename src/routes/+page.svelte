@@ -1,19 +1,19 @@
 <script lang="ts">
+  // ROS, Svelte state, Svelte component includes
   import ROSLIB from "roslib";
+
+  import { onDestroy, onMount } from "svelte";
+
   import Header from "../components/Header.svelte";
   import TopicCard from "../components/TopicCard.svelte";
-  import { onDestroy, onMount } from "svelte";
   import Error from "../components/Error.svelte";
 
+  // Backend behavior variables
   let ros: ROSLIB.Ros;
-  let autoConnect = true;
+  const autoConnect = true;
+  const rosUrl = "ws://localhost:9090";
 
-  let columns = $state(0);
-
-  let isConnected = $state(false);
-  let errorMessage = $state("");
-  let rosUrl = "ws://localhost:9090";
-
+  // User controlled state
   let topics = $state([
     { name: "/topic0", type: "std_msgs/msg/String" },
     { name: "/topic1", type: "std_msgs/msg/String" },
@@ -27,9 +27,15 @@
     { name: "/topic9", type: "std_msgs/msg/String" },
   ]);
 
+  // Backend controlled state
+  let isConnected = $state(false);
   let topicStates = $state<ROSLIB.Topic[]>([]);
   let topicValues = $state<any[]>([]);
+  let errorMessage = $state("");
 
+  let columns = $state(0);
+
+  // Initializes ROS variable and handles connection states
   function connectToROS() {
     ros = new ROSLIB.Ros({
       url: rosUrl,
@@ -56,6 +62,16 @@
     }
   }
 
+  // Sets state to not connected and destructs ROS variable
+  function disconnectFromROS() {
+    isConnected = false;
+
+    if (ros) {
+      ros.close();
+    }
+  }
+
+  // Subscribes to everything in `topics` variable
   function subscribeToTopics() {
     if (!ros || !isConnected) return;
 
@@ -81,42 +97,7 @@
     } catch (error) {}
   }
 
-  function disconnectFromROS() {
-    isConnected = false;
-
-    if (ros) {
-      ros.close();
-    }
-  }
-
-  function smartFormatTopicValue(value: any, type: string) {
-    switch (type.toLowerCase()) {
-      case "std_msgs/string":
-      case "std_msgs/msg/string":
-        return value.data;
-      default:
-        return formatTopicValue(value);
-    }
-
-    function formatTopicValue(value: any) {
-      if (value === null || value === undefined) {
-        return "No data";
-      }
-
-      if (typeof value === "object") {
-        return "\n" + JSON.stringify(value, null, 0);
-      }
-
-      return String(value);
-    }
-  }
-
-  function unsubscribeTopic(index: number) {
-    if (topicStates[index]) {
-      topicStates[index].unsubscribe();
-    }
-  }
-
+  // Subscribes to specific topic in list
   function subscribeToTopic(index: number) {
     try {
       let state = topics[index];
@@ -135,6 +116,23 @@
     } catch (error) {}
   }
 
+  // Unsubscribes from topic at index
+  function unsubscribeTopic(index: number) {
+    if (topicStates[index]) {
+      topicStates[index].unsubscribe();
+    }
+  }
+
+  // Unsubscribes from topic and removes it from all lists
+  function deleteTopic(index: number) {
+    unsubscribeTopic(index);
+
+    topics.splice(index, 1);
+    topicStates.splice(index, 1);
+    topicValues.splice(index, 1);
+  }
+
+  // Takes index number in and new name/type and sets it
   function updateTopic(
     index: number,
     newTopicName: string,
@@ -160,23 +158,30 @@
     }
   }
 
-  onMount(() => {
-    if (autoConnect) {
-      connectToROS();
+  // Formats the data based on what type it is
+  function smartFormatTopicValue(value: any, type: string) {
+    switch (type.toLowerCase()) {
+      case "std_msgs/string":
+      case "std_msgs/msg/string":
+        return value.data;
+      default:
+        return formatTopicValue(value);
     }
-  });
 
-  onDestroy(() => {
-    disconnectFromROS();
-  });
+    function formatTopicValue(value: any) {
+      if (value === null || value === undefined) {
+        return "No data";
+      }
 
-  $effect(() => {
-    if (autoConnect && rosUrl) {
-      disconnectFromROS();
-      connectToROS();
+      if (typeof value === "object") {
+        return "\n" + JSON.stringify(value, null, 0);
+      }
+
+      return String(value);
     }
-  });
+  }
 
+  // Limits the number of columns and updates based on direction
   function onColumnsChange(up: boolean) {
     if (up && columns < 16) {
       columns++;
@@ -185,13 +190,25 @@
     }
   }
 
-  function deleteTopic(index: number) {
-    unsubscribeTopic(index);
+  // When page loads, create ROS connection and subscribe
+  onMount(() => {
+    if (autoConnect) {
+      connectToROS();
+    }
+  });
 
-    topics.splice(index, 1);
-    topicStates.splice(index, 1);
-    topicValues.splice(index, 1);
-  }
+  // When page is unloading, destroy ROS connection
+  onDestroy(() => {
+    disconnectFromROS();
+  });
+
+  // If autoConnect or rosUrl change, update ROS variable
+  $effect(() => {
+    if (autoConnect && rosUrl) {
+      disconnectFromROS();
+      connectToROS();
+    }
+  });
 </script>
 
 <Header
