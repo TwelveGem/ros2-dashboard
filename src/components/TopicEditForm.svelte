@@ -25,6 +25,13 @@
       handleSave();
     }
   }
+
+  $effect(() => {
+    if (topicName && messageType) {
+      editedTopicName = topicName;
+      editedMessageType = messageType;
+    }
+  });
 </script>
 
 {#if isOpen}
